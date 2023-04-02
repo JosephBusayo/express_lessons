@@ -1,13 +1,18 @@
+require('dotenv').config()
 const express = require('express')
+const session = require('express-session')
+const DB = require('../database/index')
+
+//routes
 const groceryRoute = require('../routes/grocery')
 const marketRoute = require('../routes/market')
-const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const authRoute = require('../routes/auth')
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
+//middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })) //for accepting form data
 app.use(cookieParser())
@@ -19,8 +24,14 @@ app.use(
     })
 )
 
+
 app.use('/grocery', groceryRoute)
 app.use('/market', marketRoute)
 app.use('/auth', authRoute)
 
-app.listen(PORT, ()=> console.log (`Listening on port ${PORT}`))
+
+DB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Listening on port ${PORT}`)
+    })
+})
